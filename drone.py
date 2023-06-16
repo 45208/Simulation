@@ -2,7 +2,7 @@ import math
 import pygame
 
 COLOR_BLUE = (0, 0, 255)
-COLOR_FILLED = (204, 201, 72)
+COLOR_FILLED = (204, 201, 72, 128   )
 
 # Create a drone
 class Drone:
@@ -38,8 +38,25 @@ class Drone:
                 [self.position[0] - self.alt_movement[0] * mult, self.position[1] - self.alt_movement[1] * mult],
                 [self.position[0] + self.alt_movement[0] * mult, self.position[1] + self.alt_movement[1] * mult]
             ]
+
             if not self.last_spray:
                 self.last_spray = self.spray
+            
+            sign_x = 1 if (self.last_spray[0][0] < self.spray[0][0]) else -1
+            sign_y = 1 if (self.last_spray[0][1] < self.spray[0][1]) else -1
+            
+            sign_x *= 0.5
+            sign_y *= 0.5
+
+            self.last_spray[0][0] -= sign_x
+            self.last_spray[1][0] -= sign_x
+            self.spray[0][0] += sign_x
+            self.spray[1][0] += sign_x
+
+            self.last_spray[0][1] -= sign_y
+            self.last_spray[1][1] -= sign_y
+            self.spray[0][1] += sign_y
+            self.spray[1][1] += sign_y
         except ZeroDivisionError as e:
             pass
 
@@ -52,6 +69,9 @@ class Drone:
         altx = round(self.region[0][0] + x * self.rw)
         alty = round(self.region[1][1] - y * self.rh)
         return altx, alty
+    
+    def pixel(self):
+        return self.convert(*self.position)
 
     def draw_drone(self, surface):
         X, Y = self.convert(*self.position)
@@ -64,6 +84,7 @@ class Drone:
 
     def draw_spray(self, surface):
         points = [self.convert(*i) for i in self.last_spray + self.spray[::-1]]
+        
 
         pygame.draw.polygon(surface,
                             color = COLOR_FILLED,

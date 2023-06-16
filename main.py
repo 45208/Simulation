@@ -5,9 +5,9 @@ import pygame
 from drone import Drone
 
 # Constants
-WIDTH = 1000
-HEIGHT = 700
-BOARD_SIDE = 500
+WIDTH = 1200
+HEIGHT = 800
+BOARD_SIDE = 650
 OFFSET_X = 50
 OFFSET_Y = 50
 
@@ -15,7 +15,9 @@ COLOR_WHITE = (255, 255, 255)
 COLOR_RED = (255, 0, 0)
 COLOR_BLUE = (0, 0, 255)
 
-FPS = 30
+EPSILON = 1e-6
+DISTANCE = 0.5
+FPS = 60
 
 # Initialize pygame
 pygame.init()
@@ -70,6 +72,17 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 drone.process()
+
+    x, y = pygame.mouse.get_pos()
+    x0, y0 = drone.pixel()
+
+    vector = [x - x0, y0 - y]
+    mult = (vector[0] ** 2 + vector[1] ** 2) ** 0.5 / DISTANCE
+    if abs(mult) > EPSILON:
+        vector[0] /= mult
+        vector[1] /= mult
+
+    drone.set_movement(*vector)
             
     reset_draw()
     drone.draw_spray(colored)
