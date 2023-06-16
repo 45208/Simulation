@@ -2,6 +2,7 @@ import math
 import pygame
 
 COLOR_BLUE = (0, 0, 255)
+COLOR_FILLED = (204, 201, 72)
 
 # Create a drone
 class Drone:
@@ -47,12 +48,24 @@ class Drone:
             self.position[d] += self.movement[d]
         self.update_spray()
 
-    def draw(self, surface):
-        X = round(self.region[0][0] + self.position[0] * self.rw)
-        Y = round(self.region[1][1] - self.position[1] * self.rh)
+    def convert(self, x, y):
+        altx = round(self.region[0][0] + x * self.rw)
+        alty = round(self.region[1][1] - y * self.rh)
+        return altx, alty
+
+    def draw_drone(self, surface):
+        X, Y = self.convert(*self.position)
 
         pygame.draw.circle(surface,
                            color = COLOR_BLUE,
                            center = (X, Y),
                            radius = 3,
                            width = 0)
+
+    def draw_spray(self, surface):
+        points = [self.convert(*i) for i in self.last_spray + self.spray[::-1]]
+
+        pygame.draw.polygon(surface,
+                            color = COLOR_FILLED,
+                            points = points,
+                            width = 0)

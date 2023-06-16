@@ -4,8 +4,6 @@ from time import sleep
 import pygame
 from drone import Drone
 
-pygame.init()
-
 # Constants
 WIDTH = 1000
 HEIGHT = 700
@@ -18,6 +16,10 @@ COLOR_RED = (255, 0, 0)
 COLOR_BLUE = (0, 0, 255)
 
 FPS = 30
+
+# Initialize pygame
+pygame.init()
+pygame.key.set_repeat((1 * 1000) // FPS)
 
 # Initialize screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -47,13 +49,15 @@ drone = Drone(100, 100, 10,
               ratio_width, ratio_height
               )
 
+colored = pygame.Surface((OFFSET_X + BOARD_SIDE, OFFSET_Y + BOARD_SIDE), pygame.SRCALPHA)
+
 delta_x = 1
 delta_y = 0
 
 drone.set_start_position(0, 0)
 drone.set_movement(delta_x, delta_y)
 
-def main_draw():
+def reset_draw():
     screen.fill(COLOR_WHITE)
     screen.blit(board, (OFFSET_X, OFFSET_Y))
 
@@ -64,25 +68,12 @@ while True:
             pygame.quit()
             exit(0)
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                if delta_x > -1:
-                    delta_x -= 1
-            if event.key == pygame.K_RIGHT:
-                if delta_x < 1:
-                    delta_x += 1
-            if event.key == pygame.K_UP:
-                if delta_y < 1:
-                    delta_y += 1
-            if event.key == pygame.K_DOWN:
-                if delta_y > -1:
-                    delta_y -= 1
-
-            drone.set_movement(delta_x, delta_y)
+            if event.key == pygame.K_SPACE:
+                drone.process()
             
-    main_draw()
-    drone.process()
-    drone.draw(screen)
+    reset_draw()
+    drone.draw_spray(colored)
+    screen.blit(colored, (0, 0))
+    drone.draw_drone(screen)
 
     pygame.display.update()
-
-    sleep(1 / FPS)
