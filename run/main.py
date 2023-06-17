@@ -1,8 +1,7 @@
 # Import
 import sys
-from time import sleep
 import pygame
-from drone import Drone
+from run.drone_old import Drone
 
 # Constants
 WIDTH = 1200

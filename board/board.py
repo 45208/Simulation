@@ -8,10 +8,11 @@ class Board:
     xp, yp = [0, -1, 0, 1], [-1, 0, 1, 0]
     EPSILON = 1e-7
 
-    def __init__(self, vertices: tuple[Point], scale: int):
-        self.scale = scale
+    def __init__(self, vertices: tuple[Point], terminals: tuple[Point], scale: int):
         self.vertices = [(vertex[0] * self.scale, vertex[1] * self.scale)
                          for vertex in vertices]
+        self.terminals = terminals
+        self.scale = scale
 
         assert len(self.vertices) > 2
 

@@ -18,8 +18,7 @@ class Drone:
         
         self.terminal_points = terminal_points
 
-        self.movement = [0, 0]
-        self.position = [0, 0]
+
         self.spray = []
         self.last_spray = []
 
