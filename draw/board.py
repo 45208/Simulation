@@ -1,4 +1,3 @@
-import io
 import math
 from collections import deque
 from matplotlib import pyplot as plt
@@ -9,12 +8,15 @@ class Board:
     xp, yp = [0, -1, 0, 1], [-1, 0, 1, 0]
     EPSILON = 1e-7
 
-    def __init__(self, vertices: tuple[Point]):
-        self.vertices = vertices
+    def __init__(self, vertices: tuple[Point], scale: int):
+        self.scale = scale
+        self.vertices = [(vertex[0] * self.scale, vertex[1] * self.scale)
+                         for vertex in vertices]
+
         assert len(self.vertices) > 2
 
         self.size = 0
-        for Point in vertices:
+        for Point in self.vertices:
             self.size = max(self.size, Point[0], Point[1])
         self.size = math.ceil(self.size)
 
@@ -51,7 +53,7 @@ class Board:
                     continue
                 self.board[nx][ny] = 1
                 queue.append((nx, ny))
-    
+
     def to_image(self, fname: str, **kwargs) -> None:
         board = []
         for y in range(self.size):
@@ -67,7 +69,7 @@ class Board:
                         result = 204, 201, 72, 255
                 board[-1].append(result)
         plt.axis('off')
-        window = plt.imshow(board, origin = "lower")
+        window = plt.imshow(board, origin="lower")
         window.write_png(fname)
 
     def __repr__(self):
@@ -77,12 +79,3 @@ class Board:
                 s += 'X' if self.board[x][y] else '-'
             s += '\n'
         return s
-
-BOARD1 = (.0, .0), (100.0, .0), (100.0, 50.0), (.0, 50.0)
-BOARD2 = (.0, .0), (386.6025, .0), (236.6025, 150.0), (86.6025, 150.0)
-BOARD3 = (.0, .0), (450.0, .0), (450.0, 150.0), (150.0, 150.0), (300.0, 600.0), (.0, 450.0)
-
-if __name__ == '__main__':
-    Board(BOARD1).to_image("BOARD1.png")
-    Board(BOARD2).to_image("BOARD2.png")
-    Board(BOARD3).to_image("BOARD3.png")
