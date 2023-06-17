@@ -6,20 +6,42 @@ COLOR_FILLED = (204, 201, 72, 128   )
 
 # Create a drone
 class Drone:
-    def __init__(self, capacity, max_battery, spray_range, region, rw, rh):
+    def __init__(self, capacity, max_battery, spray_range, pump_speed, terminal_points):
         self.capacity = capacity
         self.max_battery = max_battery
 
+        self.current_battery = max_battery
+        self.current_weight = capacity
+
         self.spray_range = spray_range
-        # type of region is ((x1, y1), (x2, y2))
-        self.region = region
-        self.rw = rw
-        self.rh = rh
+        self.pump_speed = pump_speed
+        
+        self.terminal_points = terminal_points
 
         self.movement = [0, 0]
         self.position = [0, 0]
         self.spray = []
         self.last_spray = []
+
+        # Formula has signature f(current_weight, pump_speed)
+        self.formula = None
+
+    def get_battery_consumption(self):
+        F_p = self.pump_speed if (self.current_weight > 0) else 0
+        return self.formula(self.current_weight, F_p)
+    
+    def consume_pesticide(self, time):
+        consumption = (self.pump_speed / 3600) * time
+        self.current_weight = max(0, self.current_weight - consumption)
+
+    def consume_battery(self, time):
+        self.current_battery = max(0, self.current_battery - self.get_battery_consumption() * time)
+
+    def set_draw(self, region, rw, rh):
+        # type of region is ((x1, y1), (x2, y2))
+        self.region = region
+        self.rw = rw
+        self.rh = rh
 
     def set_start_position(self, x, y):
         self.position = [x, y]
