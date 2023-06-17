@@ -14,6 +14,8 @@ class Battery:
             raise BatteryException()
         self.remaining -= amount
 
+class ContainerException(Exception):
+    pass
 
 class Container:
     def __init__(self, battery: Battery, ct: float, capacity: float,
@@ -23,8 +25,11 @@ class Container:
         self.remaining = capacity if remaining is None else remaining
         self.battery = battery
 
-    def calculate(self, used: float):
-        self.battery.calculate(self.ct * self.remaining)
+    def calculate(self, seconds: float, used: float):
+        hours = seconds / 3600
+        self.battery.calculate(self.ct * self.remaining * hours)
+        if self.remaining < used:
+            raise ContainerException
         self.remaining -= used
 
 
@@ -47,7 +52,7 @@ class Pump:
     def calculate(self, seconds: float):
         hours = seconds / 3600
         self.battery.calculate(self.cp * self.fp * hours)
-        self.container.calculate(self.fp * hours)
+        self.container.calculate(seconds, self.fp * hours)
 
 
 class Drone:
@@ -56,7 +61,7 @@ class Drone:
         self.pump = pump
         self.c = c
         self.max_speed = max_speed
-        self.v = max_speed if self.v is None else self.v
+        self.v = max_speed if v is None else v
 
     def change_speed(self, v: float):
         assert self.max_speed >= self.v
@@ -72,3 +77,4 @@ class Drone:
         hours = seconds / 3600
         self.pump.calculate(seconds)
         self.battery.calculate(self.c * hours)
+

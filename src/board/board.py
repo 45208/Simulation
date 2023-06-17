@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from collections import deque
 from matplotlib import pyplot as plt
 
@@ -9,10 +10,12 @@ class Board:
     EPSILON = 1e-7
 
     def __init__(self, vertices: tuple[Point], terminals: tuple[Point], scale: int):
+        self.scale = scale
         self.vertices = [(vertex[0] * self.scale, vertex[1] * self.scale)
                          for vertex in vertices]
-        self.terminals = terminals
-        self.scale = scale
+        self.terminals = [(terminal[0] * self.scale, terminal[1] * self.scale)
+                         for terminal in terminals]
+        
 
         assert len(self.vertices) > 2
 
@@ -24,6 +27,13 @@ class Board:
         self.board = [[False for _ in range(self.size)]
                       for _ in range(self.size)]
         self.__calculate_board()
+
+    def to_nparray(self) -> np.ndarray:
+        COLOR_FALSE = [151, 153, 155]
+        COLOR_TRUE = [112, 224, 0]
+        self.np_board = [[[COLOR_FALSE, COLOR_TRUE][cell] for cell in line] for line in self.board]
+        self.np_board = np.array(self.np_board)
+        return self.np_board
 
     def __crossed(self, cx: float, cy: float, nx: float, ny: float) -> bool:
         def __counter_clockwise(a: Point, b: Point, c: Point) -> float:

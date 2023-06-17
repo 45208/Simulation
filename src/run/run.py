@@ -1,7 +1,12 @@
 import copy
-from ..board.board import Board, Point
-from ..board import board1, board2, board3
+import pygame
+from ..board import Board, Point
+from .calculations import scale_vector
 from ..drone import Drone, BatteryException
+
+# Constants
+COLOR_RED = (255, 0, 0)
+COLOR_SPRAY = (255, 193, 205)
 
 
 def distance(a: Point, b: Point) -> float:
@@ -10,7 +15,7 @@ def distance(a: Point, b: Point) -> float:
 
 class Run:
     def __init__(self, board: Board, drone: Drone,
-                 position: Point, run_on_critical: function):
+                 position: Point, run_on_critical):
         self.board, self.drone = board, drone
         self.movement = [0, 0]
         self.position = position
@@ -18,11 +23,7 @@ class Run:
 
     # Vector auto-scaled to current velocity
     def set_movement(self, vector: tuple[float, float]):
-        mult = (vector[0] ** 2 + vector[1] ** 2) ** 0.5 / self.drone.v
-        if abs(mult) > 1e-9:
-            vector[0] /= mult
-            vector[1] /= mult
-        self.movement = vector
+        self.movement = scale_vector(vector, self.drone.v)
 
     # Vector auto-scaled to current velocity
     def point_to(self, position: Point):
@@ -30,9 +31,8 @@ class Run:
         self.set_movement(vector)
 
     def new_position(self, seconds: float) -> Point:
-        position = self.position
-        position[0] += seconds * self.movement[0]
-        position[1] += seconds * self.movement[1]
+        position = (self.position[0] + seconds * self.movement[0],
+                    self.position[1] + seconds * self.movement[1])
         return position
 
     def check_critical(self):
@@ -41,19 +41,33 @@ class Run:
             min_distance = min(min_distance, distance(term, self.position))
         time_needed = min_distance / self.drone.max_speed
         try:
-            cpy = copy.deepcopy(self)
-            cpy.drone.change_speed(cpy.drone.max_speed)
-            cpy.drone.pump.change_fp(0)
+            cpy = copy.deepcopy(self.drone)
+            cpy.change_speed(cpy.max_speed)
+            cpy.pump.change_fp(0)
             cpy.calculate(time_needed)
         except BatteryException:
             self.run_on_critical()
 
-    def calculate(self, seconds: float):
+    def draw_drone(self, screen: pygame.Surface):
+        pygame.draw.circle(screen, COLOR_RED, self.position, 2, 0)
+
+    def draw_spray_range(self,screen: pygame.Surface, new_position: Point):
+        x, y = self.movement
+        x, y = y, -x
+        x, y = scale_vector((x, y), self.drone.pump.spray_range / 2)
+
+        corners = (self.position[0] + x, self.position[1] + y), \
+                  (self.position[0] - x, self.position[1] - y), \
+                  (new_position[0] - x, new_position[1] - y), \
+                  (new_position[0] + x, new_position[1] + y)
+
+        pygame.draw.polygon(screen, COLOR_SPRAY, corners, 0)
+
+    def calculate(self, screen: pygame.Surface, seconds: float):
         self.drone.calculate(seconds)
         self.check_critical()
         new_position = self.new_position(seconds)
         # Draw rectangle from position to new_position
         # Width = self.drone.pump.spray_range
-        # TODO
+        self.draw_spray_range(screen, new_position)
         self.position = new_position
-

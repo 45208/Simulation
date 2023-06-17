@@ -2,7 +2,7 @@ import math
 import pygame
 
 COLOR_BLUE = (0, 0, 255)
-COLOR_FILLED = (204, 201, 72, 128   )
+COLOR_FILLED = (204, 201, 72, 128)
 
 # Create a drone
 class Drone:
