@@ -1,7 +1,7 @@
 import glob
 from pathlib import Path
 import imageio
-FOLDER_NAME = "images\\boardx_soly"
+FOLDER_NAME = "images\\board1_sol1"
 
 
 def srt(a: str):
