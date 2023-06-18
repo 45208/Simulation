@@ -28,5 +28,8 @@ def get_board3_sol1(run: Run) -> tuple[list[tuple[float, float]], str]:
         DRONE_PATH.append((polygon[1][0] - SPRAY_RANGE*(i + 0.5), polygon[1][1] + SPRAY_RANGE*(i+0.5)))
         DRONE_PATH.append((polygon[2][0] - SPRAY_RANGE*(i + 0.5), polygon[2][1] - SPRAY_RANGE*(i+0.5)))
         DRONE_PATH.append((polygon[3][0] + SPRAY_RANGE*(i + 0.5), polygon[3][1] - SPRAY_RANGE*(i+0.5)))
+    
+
+
 
     return DRONE_PATH, "board3_sol1"
