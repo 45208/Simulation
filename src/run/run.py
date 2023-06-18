@@ -62,7 +62,12 @@ class Run:
 
     # Speed must be set first
     def go_to(self, position: Point):
-        dist = distance(self.position, position)
-        time_needed = dist / self.drone.v
-        self.point_to(position)
-        self.calculate(time_needed)
+        cpy = copy.deepcopy(self)
+        try:
+            dist = distance(self.position, position)
+            time_needed = dist / self.drone.v
+            self.point_to(position)
+            self.calculate(time_needed)
+        except Exception as e:
+            self = cpy
+            raise e

@@ -10,6 +10,6 @@ BOARD3 = (.0, .0), (450.0, .0), (450.0, 150.0), (150.0, 150.0), (300.0, 600.0), 
 TERM3 = ((0, 300), (300, 150))
 
 boards = {}
-boards[1] = Board(BOARD1, TERM1)
-# boards[2] = Board(BOARD2, TERM2)
+# boards[1] = Board(BOARD1, TERM1)
+boards[2] = Board(BOARD2, TERM2)
 # boards[3] = Board(BOARD3, TERM3)
