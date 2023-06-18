@@ -11,5 +11,5 @@ TERM3 = ((0, 300), (300, 150))
 
 boards = {}
 # boards[1] = Board(BOARD1, TERM1)
-boards[2] = Board(BOARD2, TERM2)
-# boards[3] = Board(BOARD3, TERM3)
+# boards[2] = Board(BOARD2, TERM2)
+boards[3] = Board(BOARD3, TERM3)

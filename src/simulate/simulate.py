@@ -6,7 +6,7 @@ from ..drone import ContainerException, BatteryException
 from ..board import boards
 from ..run import Run, distance
 from .T40 import default_drone
-from .board2sol2 import get_board2_sol2
+from .board3sol1 import get_board3_sol1
 from .finegrain import fine_grain_path
 
 # Constants
@@ -32,13 +32,13 @@ def critical(run: Run):
     run.drone = copy.deepcopy(default_drone)
 
 
-board = boards[2]
+board = boards[3]
 run = Run(board, copy.deepcopy(default_drone), board.terminals[0], critical)
 
 
 run.drone.pump.change_range(SPRAY_RANGE)
 
-DRONE_PATH, NAME = get_board2_sol2(run)
+DRONE_PATH, NAME = get_board3_sol1(run)
 DRONE_PATH = fine_grain_path(run.position, DRONE_PATH + [run.board.terminals[0]])
 
 # Reference: https://stackoverflow.com/questions/43096972/how-can-i-render-a-matplotlib-axes-object-to-an-image-as-a-numpy-array
