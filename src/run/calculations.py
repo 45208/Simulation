@@ -2,6 +2,7 @@ from matplotlib.lines import Line2D
 from matplotlib import pyplot as plt
 from ..board import Point
 
+
 def scale_vector(vector: Point, dist: float):
     mult = (vector[0] ** 2 + vector[1] ** 2) ** 0.5 / dist
     if abs(mult) > 1e-9:
@@ -9,6 +10,8 @@ def scale_vector(vector: Point, dist: float):
     return vector
 
 # Reference: https://stackoverflow.com/questions/19394505/expand-the-line-with-specified-width-in-data-unit/42972469
+
+
 class LineDataUnits(Line2D):
     def __init__(self, *args, **kwargs):
         _lw_data = kwargs.pop("lw", 1)
@@ -27,6 +30,7 @@ class LineDataUnits(Line2D):
         self._lw_data = lw
 
     _linewidth = property(_get_lw, _set_lw)
+
 
 def draw_spray_range(a: Point, b: Point, ax: plt.Axes, **kwargs):
     line = LineDataUnits([a[0], b[0]], [a[1], b[1]], **kwargs)

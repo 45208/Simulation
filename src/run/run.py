@@ -53,7 +53,7 @@ class Run:
         self.drone.calculate(seconds)
         new_battery = self.drone.battery.remaining
         self.time_spent += seconds
-        self.battery_spent +=  prev_battery - new_battery
+        self.battery_spent += prev_battery - new_battery
         self.check_critical()
         new_position = self.new_position(seconds)
         # Draw rectangle from position to new_position

@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 
 Point = tuple[float, float]
 
+
 class Board:
     xp, yp = [0, -1, 0, 1], [-1, 0, 1, 0]
     EPSILON = 1e-7
@@ -27,7 +28,8 @@ class Board:
     def to_nparray(self) -> np.ndarray:
         COLOR_FALSE = [151, 153, 155]
         COLOR_TRUE = [112, 224, 0]
-        self.np_board = [[[COLOR_FALSE, COLOR_TRUE][cell] for cell in line] for line in self.board]
+        self.np_board = [[[COLOR_FALSE, COLOR_TRUE][cell]
+                          for cell in line] for line in self.board]
         self.np_board = np.array(self.np_board)
         return self.np_board
 

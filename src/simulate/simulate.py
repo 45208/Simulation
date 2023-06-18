@@ -1,17 +1,29 @@
-import copy
 import os
+import copy
 import shutil
 from matplotlib import pyplot as plt
 from ..drone import ContainerException, BatteryException
 from ..board import boards
 from ..run import Run, distance
 from .T40 import default_drone
-from .board3sol2 import get_board3_sol2
-from .finegrain import fine_grain_path
+from .solutions import *
 
 # Constants
 COLOR_WHITE = (255, 255, 255)
 SPRAY_RANGE = 10
+
+
+def fine_grain_path(start: tuple[float, float], drone_path: list[tuple[float, float]]) -> list[tuple[float, float]]:
+    result = []
+    for point in drone_path:
+        segment = 5
+        vector = (point[0] - start[0]) / \
+            segment, (point[1] - start[1]) / segment
+        for i in range(segment):
+            result.append((start[0] + vector[0] * (i+1),
+                          start[1] + vector[1] * (i+1)))
+        start = point
+    return result
 
 
 def critical(run: Run):
@@ -39,17 +51,18 @@ run = Run(board, copy.deepcopy(default_drone), board.terminals[0], critical)
 run.drone.pump.change_range(SPRAY_RANGE)
 
 DRONE_PATH, NAME = get_board3_sol2(run)
-DRONE_PATH = fine_grain_path(run.position, DRONE_PATH + [run.board.terminals[0]])
+DRONE_PATH = fine_grain_path(
+    run.position, DRONE_PATH + [run.board.terminals[0]])
+
 
 # Reference: https://stackoverflow.com/questions/43096972/how-can-i-render-a-matplotlib-axes-object-to-an-image-as-a-numpy-array
-
-
 def save_ax(ax: plt.Axes, filename: str, **kwargs):
     ax.axis("off")
     ax.figure.canvas.draw()
     trans = ax.figure.dpi_scale_trans.inverted()
     bbox = ax.bbox.transformed(trans)
     plt.savefig(filename, dpi="figure", bbox_inches=bbox,  **kwargs)
+
 
 try:
     shutil.rmtree(f"images/{NAME}")

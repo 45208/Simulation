@@ -29,7 +29,8 @@ class Container:
 
     def calculate(self, seconds: float, used: float):
         hours = seconds / 3600
-        self.battery.calculate(self.ct * (self.remaining * 2 - used) / 2 * hours)
+        self.battery.calculate(
+            self.ct * (self.remaining * 2 - used) / 2 * hours)
         if self.remaining < used:
             raise ContainerException
         self.remaining -= used
