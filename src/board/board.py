@@ -12,7 +12,6 @@ class Board:
     def __init__(self, vertices: tuple[Point], terminals: tuple[Point]):
         self.vertices = vertices
         self.terminals = terminals
-        
 
         assert len(self.vertices) > 2
 
@@ -62,7 +61,7 @@ class Board:
                 self.board[nx][ny] = 1
                 queue.append((nx, ny))
 
-    def to_image(self, fname: str, **kwargs) -> None:
+    def to_image(self, ax: plt.Axes) -> None:
         board = []
         for y in range(self.size):
             board.append([])
@@ -72,13 +71,10 @@ class Board:
                     case 0:
                         result = 0, 0, 0, 0
                     case 1:
-                        result = 90, 228, 165, 255
-                    case 2:
-                        result = 204, 201, 72, 255
+                        result = 255, 228, 181, 255
                 board[-1].append(result)
-        plt.axis('off')
-        window = plt.imshow(board, origin="lower")
-        window.write_png(fname)
+        ax.axis('off')
+        ax.imshow(board, origin="lower")
 
     def __repr__(self):
         s = ""

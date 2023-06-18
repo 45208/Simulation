@@ -1,75 +1,48 @@
-import time
-import pygame
 import copy
-from ..board import boards, Point
+from matplotlib import pyplot as plt
+from ..drone import ContainerException, BatteryException
+from ..board import boards
 from ..run import Run, distance
 from .T40 import default_drone
 
 # Constants
-WIDTH = 1200
-HEIGHT = 800
-EPS = 15
-
 COLOR_WHITE = (255, 255, 255)
+SPRAY_RANGE = 10
 
-def init():
-    pygame.init()
-    pygame.key.set_repeat((1 * 1000) // 30)
+DRONE_PATH = []
 
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    field_type = 1
-    return screen, field_type
-
+for i in range(0, 3):
+    DRONE_PATH += [(50, SPRAY_RANGE / 2 + SPRAY_RANGE * i), (100 - SPRAY_RANGE / 2 - SPRAY_RANGE * i, SPRAY_RANGE / 2 + SPRAY_RANGE * i), (100 - SPRAY_RANGE / 2 - SPRAY_RANGE * i, 50 - SPRAY_RANGE / 2 - SPRAY_RANGE * i), (SPRAY_RANGE / 2 + SPRAY_RANGE * i, 50 - SPRAY_RANGE / 2 - SPRAY_RANGE * i), (SPRAY_RANGE / 2 + SPRAY_RANGE * i, SPRAY_RANGE / 2 + SPRAY_RANGE * i), (50, SPRAY_RANGE / 2 + SPRAY_RANGE*i), ]
 
 def critical(run: Run):
-    print("FUCK YOU!")
+    run.drone.pump.change_fp(0)
+    run.drone.pump.change_range(0)
+    run.drone.change_speed(run.drone.max_speed)
+    try:
+        run.go_to(run.board.terminals[0])
+    except BatteryException:
+        pass
+    print("New drone")
+    run.drone = copy.deepcopy(default_drone)
 
-screen, field_type = init()
-
-board = boards[field_type]
-
-field = pygame.surfarray.make_surface(board.to_nparray())
-
+board = boards[1]
 run = Run(board, copy.deepcopy(default_drone), board.terminals[0], critical)
 
-def draw_reset():
-    screen.fill(COLOR_WHITE)
-    screen.blit(field, (0, 0))
+run.drone.pump.change_range(SPRAY_RANGE)
 
-draw_reset()
+# Reference: https://stackoverflow.com/questions/43096972/how-can-i-render-a-matplotlib-axes-object-to-an-image-as-a-numpy-array
+def save_ax(ax: plt.Axes, filename: str, **kwargs):
+    ax.axis("off")
+    ax.figure.canvas.draw()
+    trans = ax.figure.dpi_scale_trans.inverted() 
+    bbox = ax.bbox.transformed(trans)
+    plt.savefig(filename, dpi="figure", bbox_inches=bbox,  **kwargs)
 
-cnt = 0
-
-DRONE_PATH = [(100, 0), (100, 10), (0, 10)]
-
-crr = 0
-
-def next_point(point: Point, run :Run):
-    global crr
-    if distance(point, DRONE_PATH[crr]) < EPS: crr = crr+1
-
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit(0)
-    # draw_reset()
-    next_point(run.position, run)
-    run.point_to(DRONE_PATH[crr])
-    run.calculate(screen, 1)
-
-    # filled_arr = pygame.surfarray.array2d(filled)
-    # newfill_arr = pygame.surfarray.array2d(newfill)
-    # filled_arr = np.add(filled_arr, newfill_arr, casting="safe")
-    # filled = pygame.surfarray.make_surface(filled_arr)
-    # newfill = pygame.Surface((WIDTH,HEIGHT),pygame.SRCALPHA)
-
-    screen.blit(screen, (0, 0))
-    run.draw_drone(screen)
-    pygame.display.update()
-    
-    cnt += 1
-    battery = drone.battery.remaining
-    print(cnt, battery)
-
-    time.sleep(0.5)
+for idx, point in enumerate(DRONE_PATH):
+    run.drone.change_speed_based_on_pump(75)
+    try:
+        run.go_to(point)
+    except ContainerException:
+        critical(run)
+    print(run.drone.battery.remaining, run.time_spent, run.drone.pump.container.remaining)
+    save_ax(run.ax, f"board1/solution0/{idx}.png")

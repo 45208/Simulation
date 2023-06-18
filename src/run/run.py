@@ -1,25 +1,24 @@
 import copy
-import pygame
+from matplotlib import pyplot as plt
 from ..board import Board, Point
-from .calculations import scale_vector
+from .calculations import scale_vector, draw_spray_range
 from ..drone import Drone, BatteryException
-
-# Constants
-COLOR_RED = (255, 0, 0)
-COLOR_SPRAY = (255, 193, 205)
 
 
 def distance(a: Point, b: Point) -> float:
-    return (a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2
+    return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2) ** .5
 
 
 class Run:
     def __init__(self, board: Board, drone: Drone,
                  position: Point, run_on_critical):
+        self.time_spent = 0
         self.board, self.drone = board, drone
         self.movement = [0, 0]
         self.position = position
         self.run_on_critical = run_on_critical
+        self.fig, self.ax = plt.subplots()
+        self.board.to_image(self.ax)
 
     # Vector auto-scaled to current velocity
     def set_movement(self, vector: tuple[float, float]):
@@ -48,26 +47,22 @@ class Run:
         except BatteryException:
             self.run_on_critical(self)
 
-    def draw_drone(self, screen: pygame.Surface):
-        pygame.draw.circle(screen, COLOR_RED, self.position, 2, 0)
-
-    def draw_spray_range(self,screen: pygame.Surface, new_position: Point):
-        x, y = self.movement
-        x, y = y, -x
-        x, y = scale_vector((x, y), self.drone.pump.spray_range / 2)
-
-        corners = (self.position[0] + x, self.position[1] + y), \
-                  (self.position[0] - x, self.position[1] - y), \
-                  (new_position[0] - x, new_position[1] - y), \
-                  (new_position[0] + x, new_position[1] + y)
-
-        pygame.draw.polygon(screen, COLOR_SPRAY, corners, 0)
-
-    def calculate(self, screen: pygame.Surface, seconds: float):
+    def calculate(self, seconds: float):
         self.drone.calculate(seconds)
+        self.time_spent += seconds
         self.check_critical()
         new_position = self.new_position(seconds)
         # Draw rectangle from position to new_position
         # Width = self.drone.pump.spray_range
-        self.draw_spray_range(screen, new_position)
+        draw_spray_range(self.position, new_position, self.ax,
+                         lw=self.drone.pump.spray_range, color='aquamarine', zorder=4)
+        draw_spray_range(self.position, new_position, self.ax,
+                         lw=1, color='lightcoral', zorder=5)
         self.position = new_position
+
+    # Speed must be set first
+    def go_to(self, position: Point):
+        dist = distance(self.position, position)
+        time_needed = dist / self.drone.v
+        self.point_to(position)
+        self.calculate(time_needed)
