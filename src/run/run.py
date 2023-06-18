@@ -13,6 +13,7 @@ class Run:
     def __init__(self, board: Board, drone: Drone,
                  position: Point, run_on_critical):
         self.time_spent = 0
+        self.battery_spent = 0
         self.board, self.drone = board, drone
         self.movement = [0, 0]
         self.position = position
@@ -48,8 +49,11 @@ class Run:
             self.run_on_critical(self)
 
     def calculate(self, seconds: float):
+        prev_battery = self.drone.battery.remaining
         self.drone.calculate(seconds)
+        new_battery = self.drone.battery.remaining
         self.time_spent += seconds
+        self.battery_spent +=  prev_battery - new_battery
         self.check_critical()
         new_position = self.new_position(seconds)
         # Draw rectangle from position to new_position

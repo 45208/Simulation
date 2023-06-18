@@ -29,23 +29,13 @@ run.drone.pump.change_range(SPRAY_RANGE)
 
 DRONE_PATH = []
 
+for i in range(0, 16, 2):
+    DRONE_PATH.append((run.board.terminals[0][0], SPRAY_RANGE * (i + 0.5)))
+    DRONE_PATH.append((SPRAY_RANGE*(i * 0.580123 + 1), SPRAY_RANGE * (i + 0.5)))
+    DRONE_PATH.append((SPRAY_RANGE*((i+1) * 0.580123 + 1), SPRAY_RANGE * ((i+1) + 0.5)))
+    DRONE_PATH.append((run.board.terminals[0][0], SPRAY_RANGE * ((i+1) + 0.5)))
 
-
-for i in range(8):
-    DRONE_PATH.append((run.board.terminals[0][0],
-                       run.board.vertices[0][1] + SPRAY_RANGE * (i        + 0.5)))
-    DRONE_PATH.append((run.board.vertices[0][0] + SPRAY_RANGE * (i * 1/math.tan(math.pi/6)        + 0.5),
-                       run.board.vertices[0][1] + SPRAY_RANGE * (i        + 0.5)))
-    DRONE_PATH.append((run.board.vertices[1][0] - SPRAY_RANGE * (i * 1/math.tan(math.pi*(1/8))    + 0.5),
-                       run.board.vertices[1][1] + SPRAY_RANGE * (i    + 0.5)))
-    DRONE_PATH.append((run.board.vertices[2][0] - SPRAY_RANGE * (i * 1/math.tan(math.pi*(3/8))    + 0.5),
-                       run.board.vertices[2][1] - SPRAY_RANGE * (i    + 0.5)))
-    DRONE_PATH.append((run.board.vertices[3][0] + SPRAY_RANGE * (i * 1/math.tan(math.pi/3)        + 0.5),
-                       run.board.vertices[3][1] - SPRAY_RANGE * (i        + 0.5)))
-    DRONE_PATH.append((run.board.vertices[0][0] + SPRAY_RANGE * (i * 1/math.tan(math.pi/6)        + 0.5),
-                       run.board.vertices[0][1] + SPRAY_RANGE * (i        + 0.5)))
-    DRONE_PATH.append((run.board.terminals[0][0],
-                       run.board.vertices[0][1] + SPRAY_RANGE * (i       + 0.5)))
+DRONE_PATH.pop()
 
 # Reference: https://stackoverflow.com/questions/43096972/how-can-i-render-a-matplotlib-axes-object-to-an-image-as-a-numpy-array
 def save_ax(ax: plt.Axes, filename: str, **kwargs):
@@ -70,5 +60,5 @@ for idx, point in enumerate(DRONE_PATH):
         run.drone.pump.change_range(run.drone.pump.max_spray_range)
         run.go_to(point)
 
-    print(run.drone.battery.remaining, run.time_spent, run.drone.pump.container.remaining)
-    save_ax(run.ax, f"images/board2/solution0/{idx}.png")
+    print(run.drone.battery.remaining, run.time_spent, run.battery_spent, run.drone.pump.container.remaining)
+    save_ax(run.ax, f"images/board2/solution1/{idx}.png")
