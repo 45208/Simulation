@@ -46,7 +46,7 @@ class Run:
             cpy.pump.change_fp(0)
             cpy.calculate(time_needed)
         except BatteryException:
-            self.run_on_critical()
+            self.run_on_critical(self)
 
     def draw_drone(self, screen: pygame.Surface):
         pygame.draw.circle(screen, COLOR_RED, self.position, 2, 0)

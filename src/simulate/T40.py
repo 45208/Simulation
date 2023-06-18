@@ -8,4 +8,4 @@ battery = Battery(30)
 container = Container(battery, ct=857.14, capacity=40)
 pump = Pump(battery, container, cp=0.42,
             spray_range=DEFAULT_SPRAY_RANGE, max_flow=MAX_FLOW)
-drone = Drone(battery, pump, c=11000, max_speed=10)
+default_drone = Drone(battery, pump, c=11000, max_speed=10)
