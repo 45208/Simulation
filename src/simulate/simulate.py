@@ -7,6 +7,7 @@ from ..board import boards
 from ..run import Run, distance
 from .T40 import default_drone
 from .solutions import *
+from tqdm import tqdm
 
 # Constants
 COLOR_WHITE = (255, 255, 255)
@@ -40,7 +41,7 @@ def critical(run: Run):
                 run.go_to(run.board.terminals[1])
     except BatteryException:
         pass
-    print("New drone")
+    # print("New drone")
     run.drone = copy.deepcopy(default_drone)
 
 
@@ -72,7 +73,8 @@ except Exception as e:
 
 CONCENTRATION = 75
 
-for idx, point in enumerate(DRONE_PATH):
+for idx, point in tqdm(enumerate(DRONE_PATH), total=len(DRONE_PATH)):
+
     run.drone.change_speed_based_on_pump(CONCENTRATION)
     try:
         run.go_to(point)
@@ -87,8 +89,8 @@ for idx, point in enumerate(DRONE_PATH):
         run.drone.pump.change_range(run.drone.pump.max_spray_range)
         run.go_to(point)
 
-    print(run.drone.battery.remaining, run.time_spent,
-          run.battery_spent, run.drone.pump.container.remaining)
+    # print(run.drone.battery.remaining, run.time_spent,
+    #       run.battery_spent, run.drone.pump.container.remaining)
     save_ax(run.ax, f"images/{NAME}/{idx}.png")
 
 print(NAME)
